@@ -1,0 +1,1 @@
+rw splash rd.luks.allow-discards root=LABEL=$SYS_LABEL_FS rootflags=subvol=@root,rw

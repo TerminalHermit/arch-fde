@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -x
+if [ "x$1" == "x"  ]; then
+	echo requires block device path arguement
+	exit 1
+fi
+
+if [ "$EUID" -ne 0 ]; then
+	echo requires root
+	exit 1
+fi
+
+if [ -b $1 ]; then
+	CONTAINER=$(uuidgen)
+	cryptsetup open --type plain $1 $CONTAINER --key-file /dev/urandom
+	echo "opening $1 as $CONTAINER"
+	dd if=/dev/zero of=/dev/mapper/$CONTAINER status=progress bs=1M
+	cryptsetup close $CONTAINER
+else
+    echo $1 block device not found
+fi

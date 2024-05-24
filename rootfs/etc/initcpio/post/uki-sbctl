@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+echo 'signing bundles'
+export ESP_PATH=$SYS_MOUNT_UEFI
+sbctl bundle -s $SYS_MOUNT_UEFI/main.efi
+sbctl sign $SYS_MOUNT_UEFI/main.efi
+sbctl status
+sbctl verify

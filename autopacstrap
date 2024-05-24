@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -x
+
+export SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+
+source "$SCRIPT_DIR/.env"
+
+function exit_with() {
+	echo $1
+	exit 1
+}
+
+function arch_chroot() {
+	 arch-chroot $ARCH_INSTALL bash -c "$1"
+}
+
+#copy predefined configs and replace them on install target while replacing all env variables
+function copy_rootfs() {
+ROOTFS_DIR="${SCRIPT_DIR}/rootfs"
+for f in $(find rootfs -type f); do 
+ path="/$(realpath -m --relative-to=${ROOTFS_DIR} $f)"
+ echo "updating $path on real rootfs"
+ cat $f | envsubst > "${ARCH_INSTALL}${path}"
+done
+}
+
+# $1: name of package directory
+function install_package() {
+INSTALL_DIR="${SCRIPT_DIR}/bundles"
+TARGET_PKG="${INSTALL_DIR}/$1"
+
+if test -d $TARGET_PKG; then
+ PKGS=$(echo $(cat "$TARGET_PKG/packages"))
+ arch_chroot "pacman --noconfirm -Sy $PKGS"
+ while read p; do
+  arch_chroot "systemctl enable $p"
+ done < "$TARGET_PKG/services"
+else 
+ echo "unknown package: $1"
+ exit 1
+fi
+}
+
+#luks format $1 with password $2 using small header + big security
+function luksformat_ultra_min() {
+echo -n "$2" | cryptsetup luksFormat \
+	--type luks2 \
+	--cipher aes-xts-plain64 \
+	--key-size 512 \
+	--align-payload=8192 \
+	--iter-time 3000 \
+	--hash sha512 \
+	--luks2-metadata-size 16k \
+	--luks2-keyslots-size 1015808 \
+	$1 -
+}
+
+# $1: device path; $2: mapped name; $3: password
+function luksopen() {
+echo -n "$3" | cryptsetup open \
+	--debug \
+	--type luks2 \
+	$1 \
+	$2 -
+}
+
+function create_sysfs() {
+#btrfs inside lvm inside luks
+# 1 - luks
+luksformat_ultra_min $SYS_DEV_LUKS $SYS_DEV_LUKS_PASSPHRASE
+luksopen $SYS_DEV_LUKS $SYS_DEV_LVM $SYS_DEV_LUKS_PASSPHRASE
+# 2 - simple lvm
+pvcreate /dev/mapper/$SYS_DEV_LVM
+vgcreate $SYS_DEV_LVM_VG /dev/mapper/$SYS_DEV_LVM
+lvcreate -L $SYS_DEV_LVM_LV_SIZE -n $SYS_DEV_LVM_LV $SYS_DEV_LVM_VG
+# 3 - fs
+mkfs.btrfs --label $SYS_LABEL_FS "/dev/$SYS_DEV_LVM_VG/$SYS_DEV_LVM_LV"
+mount -t btrfs LABEL=$SYS_LABEL_FS $ARCH_INSTALL
+
+btrfs subvolume create "$ARCH_INSTALL/@root"
+btrfs subvolume create "$ARCH_INSTALL/@logs"
+btrfs subvolume create "$ARCH_INSTALL/@cache"
+btrfs subvolume create "$ARCH_INSTALL/@snaps"
+
+umount -R $ARCH_INSTALL
+
+mount -t btrfs -o subvol=@root LABEL=$SYS_LABEL_FS $ARCH_INSTALL
+mkdir -p "$ARCH_INSTALL/var/log"
+mount -t btrfs -o subvol=@logs LABEL=$SYS_LABEL_FS "$ARCH_INSTALL/var/log"
+mkdir -p "$ARCH_INSTALL/var/cache"
+mount -t btrfs -o subvol=@cache LABEL=$SYS_LABEL_FS "$ARCH_INSTALL/var/cache"
+mkdir -p "$ARCH_INSTALL/storage/$SYS_LABEL_FS"
+mount -t btrfs LABEL=$SYS_LABEL_FS "$ARCH_INSTALL/storage/$SYS_LABEL_FS"
+
+#efi
+mkfs.fat -F32 -n $SYS_LABEL_UEFI $SYS_DEV_UEFI
+mkdir "${ARCH_INSTALL}${SYS_MOUNT_UEFI}"
+mount LABEL=$SYS_LABEL_UEFI "${ARCH_INSTALL}${SYS_MOUNT_UEFI}"
+#
+}
+
+function arch_install() {
+mkdir -p $ARCH_INSTALL
+create_sysfs
+pacstrap $ARCH_INSTALL base
+install_package base
+install_package plasma
+
+echo "updating fstab..."
+genfstab -L -p $ARCH_INSTALL > "$ARCH_INSTALL/etc/fstab"
+
+copy_rootfs
+
+arch_chroot "sbctl create-keys"
+arch_chroot "chmod +x /etc/initcpio/post/uki-sbctl && mkinitcpio -P"
+arch_chroot "echo 'root' | passwd root --stdin"
+arch_chroot "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
+arch_chroot "hwclock --systohc"
+
+}
+
+echo "running autopacstrap"
+
+test -b $SYS_DEV_UEFI || exit_with "cant find uefi device: $SYS_DEV_UEFI"
+test -b $SYS_DEV_LUKS || exit_with "cant find system device: $SYS_DEV_LUKS"
+
+
+arch_install
+
+
+echo "script completed - filesystem still mounted at: $ARCH_INSTALL"

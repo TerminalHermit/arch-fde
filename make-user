@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+useradd -m -G wheel -g users -s/usr/bin/zsh danny
+
+echo $USER | passwd $USER --stdin

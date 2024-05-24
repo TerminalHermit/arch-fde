@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+mkdir -p "$SCRIPT_DIR/build"
+rm -fv "$SCRIPT_DIR/build/install.iso"
+mkisofs -r -o "$SCRIPT_DIR/build/install.iso" $SCRIPT_DIR
