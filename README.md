@@ -21,3 +21,14 @@ overwrites following files on the newly installed base system
 - /etc/sudoers: minimal config with wheel group enabled
 
 
+## Unlock with TPM
+
+```bash
+# list devices
+systemd-cryptenroll --tpm2-device=list
+# enroll
+systemd-cryptentoll --tpm2-device=/dev/xxx --tpm2-pcrs=0+7 /dev/disk/by-partlabel/xx-cryptsys
+```
+- adding `--tpm2-with-pin=yes` for additional pin check
+- TPM ENROLLMENT REQURIES SECUREBOOT ENABLED
+
