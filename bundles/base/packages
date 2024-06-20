@@ -5,6 +5,7 @@ btop
 btrbk
 btrfs-progs
 cdrkit
+cdrtools
 cmake
 cronie
 cups
@@ -29,6 +30,7 @@ jdk-openjdk
 jq
 kmod
 kubectl
+lazygit
 less
 less
 libfido2
@@ -43,7 +45,7 @@ mbuffer
 mdadm
 mesa-utils
 mkinitcpio
-cdrtools
+mosh
 neovim
 net-tools
 networkmanager
@@ -51,13 +53,13 @@ networkmanager-openvpn
 networkmanager-pptp
 ninja
 nmap
-nmap
 ntfs-3g
 openvpn
 pdftk
 pipewire-jack
 plymouth
 power-profiles-daemon
+procs
 sbctl
 smartmontools
 socat

@@ -4,4 +4,4 @@ cronie.service
 cups.service
 docker.service
 libvirtd.service
-NetworkManager.serivce
+NetworkManager

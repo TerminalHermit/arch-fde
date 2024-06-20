@@ -4,11 +4,15 @@ bluedevil
 breeze
 breeze-gtk
 cryfs
+discover
 dolphin
 drkonqi
 firefox
+flatpak
+flatpak-kcm
 freerdp
 fwupd
+gnome-disk-utility
 hunspell
 hunspell-de
 hunspell-en_us
@@ -71,6 +75,7 @@ spectacle
 systemdgenie
 systemsettings
 thunderbird
+ttf-nerd-fonts-symbols
 wacomtablet
 xclip
 xdg-desktop-portal
