@@ -60,6 +60,7 @@ pipewire-jack
 plymouth
 power-profiles-daemon
 procs
+rsync
 sbctl
 smartmontools
 socat

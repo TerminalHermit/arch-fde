@@ -19,7 +19,8 @@ overwrites following files on the newly installed base system
 - /etc/locale.gen: language presets
 - /etc/mkinitcpio.conf: defines hooks for required initramfs modules
 - /etc/sudoers: minimal config with wheel group enabled
-
+- /etc/hostname:
+- /etc/hosts: 
 
 ## Unlock with TPM
 
