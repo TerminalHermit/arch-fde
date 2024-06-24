@@ -59,13 +59,13 @@ pdftk
 pipewire-jack
 plymouth
 power-profiles-daemon
-procs
 rsync
 sbctl
 smartmontools
 socat
 stow
 sudo
+system-config-printer
 tar
 tmux
 tpm2-tss
@@ -83,6 +83,7 @@ virt-manager
 virt-viewer
 vulkan-tools
 wget
+wipe
 wireguard-tools
 wmctrl
 wol
