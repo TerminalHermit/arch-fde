@@ -44,6 +44,7 @@ man-db
 mbuffer
 mdadm
 mesa-utils
+minicom
 mkinitcpio
 mosh
 neovim
@@ -51,6 +52,7 @@ net-tools
 networkmanager
 networkmanager-openvpn
 networkmanager-pptp
+nfs-utils
 ninja
 nmap
 ntfs-3g
@@ -59,10 +61,12 @@ pdftk
 pipewire-jack
 plymouth
 power-profiles-daemon
+python-virtualenv
 rsync
 sbctl
 smartmontools
 socat
+sshfs
 stow
 sudo
 system-config-printer

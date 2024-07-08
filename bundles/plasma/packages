@@ -42,6 +42,7 @@ layer-shell-qt
 libkscreen
 libksysguard
 libplasma
+lightdm
 milou
 noto-fonts
 noto-fonts-cjk
@@ -69,8 +70,6 @@ powerdevil
 print-manager
 qqc2-breeze-style
 remmina
-sddm
-sddm-kcm
 spectacle
 systemdgenie
 systemsettings

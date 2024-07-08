@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+
 useradd -m -G wheel -g users -s/usr/bin/zsh danny
+
+#allow non root to mount sshfs
+groupadd fuse
+usermod -a -G fuse danny
+
 
 echo $USER | passwd $USER --stdin
